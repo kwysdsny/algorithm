@@ -3,6 +3,10 @@ package hot100;
 import java.util.HashMap;
 
 public class 和为k的子数组 {
+    public static void main(String[] args) {
+        int[] a={1,1,1};
+        subarraySum1(a,2);
+    }
     /**
      * 枚举法
      *
@@ -25,12 +29,12 @@ public class 和为k的子数组 {
     }
 
     /**
-     * 前缀和+哈希表优化
+     * 前缀和+哈希表优化,哈希表存储元素和出现次数，并在当前循环中通过哈希表查找有多少前缀和满足条件
      * @param nums
      * @param k
      * @return
      */
-    public int subarraySum1(int[] nums, int k) {
+    public static int subarraySum1(int[] nums, int k) {
         int count = 0, pre = 0;
         HashMap< Integer, Integer > mp = new HashMap < > ();
         mp.put(0, 1);
