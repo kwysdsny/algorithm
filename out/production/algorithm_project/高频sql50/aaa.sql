@@ -56,6 +56,18 @@ from weather a
 -- SELECT：选择需要的列或计算字段。
 -- ORDER BY：对结果集进行排序。
 -- LIMIT/OFFSET：限制返回的结果数量。
+
+-- from
+-- on
+-- join
+-- where
+-- group by
+-- min max avg count sum
+-- having
+-- select
+-- distinct
+-- order by
+-- limit
 select a.machine_id, ROUND(AVG(a.timestamp - b.timestamp), 3) AS processing_time
 FROM Activity a
          JOIN Activity b
