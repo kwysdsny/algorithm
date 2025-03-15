@@ -96,6 +96,10 @@ order by student_id, subject_name;
 
 
 
+select a.user_id,ROUND(IFNULL(AVG(b.action='confirmed'), 0), 2) AS confirmation_rate from signups as a left join confirmations as b on a.user_id=b.user_id group by a.user_id
+
+
+
 
 
 
