@@ -110,6 +110,6 @@ from queries
 group by query_name
 
 
-
+select round(count(1)/(SELECT COUNT(DISTINCT player_id) FROM Activity),2) fraction from activity  a join activity b on a.player_id=b.player_id where datediff(b.event_date,a.event_date)=1
 
 
