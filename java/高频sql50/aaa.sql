@@ -126,3 +126,13 @@ WHERE DATEDIFF(b.event_date, a.event_date) = 1
 );
 
 
+
+-- 最小值和最大值在某个期间日期内
+select a.product_id,b.product_name
+from Sales a
+         join Product b
+              on a.product_id = b.product_id
+group by a.product_id
+having min(sale_date)>='2019-01-01' and max(sale_date)<='2019-03-31'
+
+
