@@ -136,3 +136,37 @@ group by a.product_id
 having min(sale_date)>='2019-01-01' and max(sale_date)<='2019-03-31'
 
 
+-- having
+select class from courses group by class having count(student)>=5
+
+
+--https://leetcode.cn/problems/biggest-single-number/?envType=study-plan-v2&envId=sql-free-50
+SELECT
+    MAX(num) AS num
+FROM
+    (SELECT
+         num
+     FROM
+         mynumbers
+     GROUP BY num
+     HAVING COUNT(num) = 1) AS t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
