@@ -119,37 +119,34 @@ FROM activity a
          JOIN activity b
               ON a.player_id = b.player_id
 WHERE DATEDIFF(b.event_date, a.event_date) = 1
-  AND a.event_date = (
-    SELECT MIN(event_date)
-    FROM activity
-    WHERE player_id = a.player_id
-);
-
+  AND a.event_date = (SELECT MIN(event_date)
+                      FROM activity
+                      WHERE player_id = a.player_id);
 
 
 -- 最小值和最大值在某个期间日期内
-select a.product_id,b.product_name
+select a.product_id, b.product_name
 from Sales a
          join Product b
               on a.product_id = b.product_id
 group by a.product_id
-having min(sale_date)>='2019-01-01' and max(sale_date)<='2019-03-31'
+having min(sale_date) >= '2019-01-01'
+   and max(sale_date) <= '2019-03-31'
 
 
 -- having
-select class from courses group by class having count(student)>=5
+select class
+from courses
+group by class
+having count(student) >= 5
 
 
 --https://leetcode.cn/problems/biggest-single-number/?envType=study-plan-v2&envId=sql-free-50
-SELECT
-    MAX(num) AS num
-FROM
-    (SELECT
-         num
-     FROM
-         mynumbers
-     GROUP BY num
-     HAVING COUNT(num) = 1) AS t
+SELECT MAX(num) AS num
+FROM (SELECT num
+      FROM mynumbers
+      GROUP BY num
+      HAVING COUNT(num) = 1) AS t
 
 -- 一些题目可以去使用having语句
 SELECT customer_id
@@ -158,10 +155,42 @@ WHERE product_key IN (SELECT product_key FROM Product)
 GROUP BY customer_id
 HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product);
 
+-- 使用union
+SELECT employee_id,
+       department_id
+FROM Employee
+GROUP BY employee_id
+HAVING COUNT(department_id) = 1
+UNION
+SELECT employee_id,
+       department_id
+FROM Employee
+WHERE primary_flag = 'Y';
+
+-- 上面的和下面的同一题
+-- 使用or 子查询
+SELECT e.employee_id, department_id
+FROM Employee e
+WHERE e.primary_flag = 'Y'
+   OR e.employee_id in
+      (SELECT employee_id
+       FROM Employee
+       GROUP BY employee_id
+       HAVING COUNT(employee_id) = 1);
 
 
-
-
+--思路：先查询出所有的product_id，然后左连接查询出每个product_id的最新价格，如果没有最新价格则默认10，套娃总能写出来
+select p1.product_id, ifnull(p2.new_price, 10) price
+from (select distinct product_id
+      from products) p1
+         left join
+     (select product_id, new_price
+      from products
+      where (product_id, change_date) in
+            (select product_id, max(change_date)
+             from products
+             where change_date <= '2019-08-16'
+             group by product_id)) p2 on p1.product_id = p2.product_id
 
 
 
