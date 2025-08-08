@@ -194,28 +194,30 @@ from (select distinct product_id
 
 -- 自连接对数据进行筛选
 SELECT a.person_name
-FROM Queue a, Queue b
+FROM Queue a,
+     Queue b
 WHERE a.turn >= b.turn
-GROUP BY a.person_id HAVING SUM(b.weight) <= 1000
-ORDER BY a.turn DESC
-    LIMIT 1
+GROUP BY a.person_id
+HAVING SUM(b.weight) <= 1000
+ORDER BY a.turn DESC LIMIT 1
 
 
 -- 统计每个类别的数量,对行不存在的'Low Salary'，加上引号
 select 'Low Salary' as category,
-       count(*) as accounts_count
+       count(*)     as accounts_count
 from accounts
-where income<20000
+where income < 20000
 union
 select 'Average Salary' as category,
-       count(*) as accounts_count
+       count(*)         as accounts_count
 from accounts
-where income<=50000 and income>=20000
+where income <= 50000
+  and income >= 20000
 union
 select 'High Salary' as category,
-       count(*) as accounts_count
+       count(*)      as accounts_count
 from accounts
-where income>50000
+where income > 50000
 
 --     这条语句把表 seat 自连接：
 -- 左表别名 a（所有行）
@@ -226,14 +228,79 @@ where income>50000
 -- 偶数行 出现时，右表 b 会为 NULL（因为条件 a.id%2=1 为假，连接失败）。
 -- 如果想让 所有行都保留，但奇数行再去配对，可以把奇偶条件改到 WHERE：
 
-select * from seat a left join seat b on a.id=b.id-1 and a.id%2=1
+select *
+from seat a
+         left join seat b on a.id = b.id - 1 and a.id%2=1
 
-select * from seat a left join seat b on a.id=b.id-1 where a.id%2=1
+select *
+from seat a
+         left join seat b on a.id = b.id - 1
+where a.id%2=1
 
-select a.id id,ifnull(b.student,a.student) student from seat a left join seat b on a.id=b.id-1 where a.id%2=1
+select a.id id, ifnull(b.student, a.student) student
+from seat a
+         left join seat b on a.id = b.id - 1
+where a.id%2=1
 union
-select a.id id,b.student student from seat a left join seat b on a.id=b.id+1 where a.id%2=0
+select a.id id, b.student student
+from seat a
+         left join seat b on a.id = b.id + 1
+where a.id%2=0
 order by id
+
+
+-- ORDER BY … LIMIT … 只能出现在整个 UNION 的最末尾，不能写在单个 SELECT 里
+--     实在要写得加括号
+    (select name results
+    from movierating m left join users u on u.user_id=m.user_id group by m.user_id order by count (m.movie_id) desc, u.name
+    limit 1)
+union all
+(
+select title results
+from movierating m left join movies mo
+on m.movie_id=mo.movie_id
+where created_at between '2020-02-01' and '2020-02-29'
+group by m.movie_id
+order by avg (rating) desc, mo.title limit 1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
