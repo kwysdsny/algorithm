@@ -192,16 +192,48 @@ from (select distinct product_id
              where change_date <= '2019-08-16'
              group by product_id)) p2 on p1.product_id = p2.product_id
 
+-- 自连接对数据进行筛选
+SELECT a.person_name
+FROM Queue a, Queue b
+WHERE a.turn >= b.turn
+GROUP BY a.person_id HAVING SUM(b.weight) <= 1000
+ORDER BY a.turn DESC
+    LIMIT 1
 
 
+-- 统计每个类别的数量,对行不存在的'Low Salary'，加上引号
+select 'Low Salary' as category,
+       count(*) as accounts_count
+from accounts
+where income<20000
+union
+select 'Average Salary' as category,
+       count(*) as accounts_count
+from accounts
+where income<=50000 and income>=20000
+union
+select 'High Salary' as category,
+       count(*) as accounts_count
+from accounts
+where income>50000
 
+--     这条语句把表 seat 自连接：
+-- 左表别名 a（所有行）
+-- 右表别名 b（取 a.id-1 的那一行），并且只考虑 a.id 为奇数 的行。
+-- 语法上没有问题，但逻辑上要注意：
+-- a.id % 2 = 1 放在 ON 子句，意味着：
+-- 只有在 a.id 为奇数 时才会去匹配 a.id-1 这一行；
+-- 偶数行 出现时，右表 b 会为 NULL（因为条件 a.id%2=1 为假，连接失败）。
+-- 如果想让 所有行都保留，但奇数行再去配对，可以把奇偶条件改到 WHERE：
 
+select * from seat a left join seat b on a.id=b.id-1 and a.id%2=1
 
+select * from seat a left join seat b on a.id=b.id-1 where a.id%2=1
 
-
-
-
-
+select a.id id,ifnull(b.student,a.student) student from seat a left join seat b on a.id=b.id-1 where a.id%2=1
+union
+select a.id id,b.student student from seat a left join seat b on a.id=b.id+1 where a.id%2=0
+order by id
 
 
 
