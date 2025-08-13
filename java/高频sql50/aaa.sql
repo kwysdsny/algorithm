@@ -266,6 +266,20 @@ order by avg (rating) desc, mo.title limit 1)
 
 
 
+-- SUBSTRING(column_name, start, length)：这将从列的值中提取一个子字符串，从指定的起始位置开始，直到指定的长度。
+--
+-- UPPER(expression)：这会将字符串表达式转换为大写。
+--
+-- LOWER(expression)：这会将字符串表达式转换为小写。
+--
+-- CONCAT(string1, string2, ...)：这会将两个或多个字符串连接成一个字符串。
+SELECT user_id, CONCAT(UPPER(SUBSTRING(name, 1, 1)), LOWER(SUBSTRING(name, 2))) AS name
+FROM Users
+ORDER BY user_id;
+
+
+
+
 
 
 
