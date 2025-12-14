@@ -110,6 +110,212 @@ from queries
 group by query_name
 
 
+SELECT ROUND(
+               COUNT(1) /
+               (SELECT COUNT(DISTINCT player_id) FROM activity),
+               2
+       ) AS fraction
+FROM activity a
+         JOIN activity b
+              ON a.player_id = b.player_id
+WHERE DATEDIFF(b.event_date, a.event_date) = 1
+  AND a.event_date = (SELECT MIN(event_date)
+                      FROM activity
+                      WHERE player_id = a.player_id);
+
+
+-- 最小值和最大值在某个期间日期内
+select a.product_id, b.product_name
+from Sales a
+         join Product b
+              on a.product_id = b.product_id
+group by a.product_id
+having min(sale_date) >= '2019-01-01'
+   and max(sale_date) <= '2019-03-31'
+
+
+-- having
+select class
+from courses
+group by class
+having count(student) >= 5
+
+
+--https://leetcode.cn/problems/biggest-single-number/?envType=study-plan-v2&envId=sql-free-50
+SELECT MAX(num) AS num
+FROM (SELECT num
+      FROM mynumbers
+      GROUP BY num
+      HAVING COUNT(num) = 1) AS t
+
+-- 一些题目可以去使用having语句
+SELECT customer_id
+FROM Customer
+WHERE product_key IN (SELECT product_key FROM Product)
+GROUP BY customer_id
+HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product);
+
+-- 使用union
+SELECT employee_id,
+       department_id
+FROM Employee
+GROUP BY employee_id
+HAVING COUNT(department_id) = 1
+UNION
+SELECT employee_id,
+       department_id
+FROM Employee
+WHERE primary_flag = 'Y';
+
+-- 上面的和下面的同一题
+-- 使用or 子查询
+SELECT e.employee_id, department_id
+FROM Employee e
+WHERE e.primary_flag = 'Y'
+   OR e.employee_id in
+      (SELECT employee_id
+       FROM Employee
+       GROUP BY employee_id
+       HAVING COUNT(employee_id) = 1);
+
+
+--思路：先查询出所有的product_id，然后左连接查询出每个product_id的最新价格，如果没有最新价格则默认10，套娃总能写出来
+select p1.product_id, ifnull(p2.new_price, 10) price
+from (select distinct product_id
+      from products) p1
+         left join
+     (select product_id, new_price
+      from products
+      where (product_id, change_date) in
+            (select product_id, max(change_date)
+             from products
+             where change_date <= '2019-08-16'
+             group by product_id)) p2 on p1.product_id = p2.product_id
+
+-- 自连接对数据进行筛选
+SELECT a.person_name
+FROM Queue a,
+     Queue b
+WHERE a.turn >= b.turn
+GROUP BY a.person_id
+HAVING SUM(b.weight) <= 1000
+ORDER BY a.turn DESC LIMIT 1
+
+
+-- 统计每个类别的数量,对行不存在的'Low Salary'，加上引号
+select 'Low Salary' as category,
+       count(*)     as accounts_count
+from accounts
+where income < 20000
+union
+select 'Average Salary' as category,
+       count(*)         as accounts_count
+from accounts
+where income <= 50000
+  and income >= 20000
+union
+select 'High Salary' as category,
+       count(*)      as accounts_count
+from accounts
+where income > 50000
+
+--     这条语句把表 seat 自连接：
+-- 左表别名 a（所有行）
+-- 右表别名 b（取 a.id-1 的那一行），并且只考虑 a.id 为奇数 的行。
+-- 语法上没有问题，但逻辑上要注意：
+-- a.id % 2 = 1 放在 ON 子句，意味着：
+-- 只有在 a.id 为奇数 时才会去匹配 a.id-1 这一行；
+-- 偶数行 出现时，右表 b 会为 NULL（因为条件 a.id%2=1 为假，连接失败）。
+-- 如果想让 所有行都保留，但奇数行再去配对，可以把奇偶条件改到 WHERE：
+
+select *
+from seat a
+         left join seat b on a.id = b.id - 1 and a.id%2=1
+
+select *
+from seat a
+         left join seat b on a.id = b.id - 1
+where a.id%2=1
+
+select a.id id, ifnull(b.student, a.student) student
+from seat a
+         left join seat b on a.id = b.id - 1
+where a.id%2=1
+union
+select a.id id, b.student student
+from seat a
+         left join seat b on a.id = b.id + 1
+where a.id%2=0
+order by id
+
+
+-- ORDER BY … LIMIT … 只能出现在整个 UNION 的最末尾，不能写在单个 SELECT 里
+--     实在要写得加括号
+    (select name results
+    from movierating m left join users u on u.user_id=m.user_id group by m.user_id order by count (m.movie_id) desc, u.name
+    limit 1)
+union all
+(
+select title results
+from movierating m left join movies mo
+on m.movie_id=mo.movie_id
+where created_at between '2020-02-01' and '2020-02-29'
+group by m.movie_id
+order by avg (rating) desc, mo.title limit 1)
+
+
+
+
+-- SUBSTRING(column_name, start, length)：这将从列的值中提取一个子字符串，从指定的起始位置开始，直到指定的长度。
+--
+-- UPPER(expression)：这会将字符串表达式转换为大写。
+--
+-- LOWER(expression)：这会将字符串表达式转换为小写。
+--
+-- CONCAT(string1, string2, ...)：这会将两个或多个字符串连接成一个字符串。
+SELECT user_id, CONCAT(UPPER(SUBSTRING(name, 1, 1)), LOWER(SUBSTRING(name, 2))) AS name
+FROM Users
+ORDER BY user_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
